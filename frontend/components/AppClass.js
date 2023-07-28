@@ -1,90 +1,100 @@
-import React from 'react'
-import { state } from 'react';
-
+import React from 'react';
 
 // Suggested initial states
-const initialMessage = ''
-const initialEmail = ''
-const initialSteps = 0
-const initialIndex = 4 // the index the "B" is at
+const initialMessage = '';
+const initialEmail = '';
+const initialSteps = 0;
+const initialIndex = 4; // the index the "B" is at
 
 const initialState = {
   message: initialMessage,
   email: initialEmail,
   index: initialIndex,
   steps: initialSteps,
-}
+};
 
 export default class AppClass extends React.Component {
-  // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
-  // You can delete them and build your own logic from scratch.
+  // Helper function to calculate the coordinates based on the index
+  constructor(props) {
+    super(props);
 
-  getXY = () => {
-    // It it not necessary to have a state to track the coordinates.
-    // It's enough to know what index the "B" is at, to be able to calculate them.
-    const { index }  = this.state;
-    const x = (index % 3) + 1;
-    const y = Math.floor(index % 3) + 1;
-    return (x, y);
+    // Initialize the component's state with the initialState
+    this.state = initialState;
   }
 
+  
+  getXY = () => {
+    // It is not necessary to have a state to track the coordinates.
+    // It's enough to know what index the "B" is at, to be able to calculate them.
+    const { index } = this.state;
+    const x = (index % 3) + 1;
+    const y = Math.floor(index / 3) + 1;
+    return { x, y };
+  };
+
+  // Helper function to get the message displaying the coordinates
   getXYMessage = () => {
-    // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
+    // It is not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
     // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
     // returns the fully constructed string.
-   const { x, y } = this.getXY();
-   return `Coordinates (${x}, ${y})`;
-  }
+    const { x, y } = this.getXY();
+    return `Coordinates (${x}, ${y})`;
+  };
 
+  // Helper function to reset all states to their initial values
   reset = () => {
-    // Use this helper to reset all states to their initial values.
-    this.setState({
-      message: initialMessage,
-      email: initialEmail,
-      index: initialIndex,
-      steps: initialSteps,
-    });
-  }
+    this.setState(initialState);
+  };
 
+  // Helper function to calculate the next index based on the movement direction
   getNextIndex = (direction) => {
     // This helper takes a direction ("left", "up", etc) and calculates what the next index
     // of the "B" would be. If the move is impossible because we are at the edge of the grid,
     // this helper should return the current index unchanged.
-  const { index } = this.state;
-  const gridMap = {
-    left: -1,
-    up: -3,
-    right: 1,
-    down: 3,
+    const { index } = this.state;
+    const gridMap = {
+      left: -1,
+      up: -3,
+      right: 1,
+      down: 3,
+    };
+    const nextIndex = index + (gridMap[direction] || 0);
+    return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
   };
-  const nextIndex = index + (gridMap[direction] || 0);
-  return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
-  }
 
+  // Event handler for the movement buttons
   move = (evt) => {
-    // This event handler can use the helper above to obtain a new index for the "B",
-    // and change any states accordingly.
-    const direction = evt.target.id; 
+    const direction = evt.target.textContent.toUpperCase();
     const nextIndex = this.getNextIndex(direction);
 
-    this.setState((prevState) => ({
-      index: nextIndex,
-      steps: prevState.steps + 1,
-      message: this.getXYMessage(), // Update the message with the new coordinates
-    }));
-  }
+    this.setState(
+      (prevState) => ({
+        index: nextIndex,
+        steps: prevState.steps + 1,
+      }),
+      () => {
+        this.updateMessage(); // After updating state, update the message
+      }
+    );
+  };
 
+  // Helper function to update the message displaying the coordinates
+  updateMessage = () => {
+    const message = this.getXYMessage();
+    this.setState({ message });
+  };
+
+  // Event handler for the email input field
   onChange = (evt) => {
-    // You will need this to update the value of the input.
-    this.setState({ email: evt.target.value});
-  }
+    this.setState({ email: evt.target.value });
+  };
 
+  // Event handler for the form submission
   onSubmit = (evt) => {
-    // Use a POST request to send a payload to the server.
     evt.preventDefault();
-    
+
     const { email, index, steps } = this.state;
-    const { x, y } = this.getXY(); 
+    const { x, y } = this.getXY();
 
     const payload = {
       x,
@@ -92,66 +102,71 @@ export default class AppClass extends React.Component {
       steps,
       email,
     };
-  
-    fetch('http://localhost:9000/api/result', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
-    })
-    .then((data) => {
-      // Handle the successful response from the server here
-      console.log('Server response:', data);
-      // Optionally, you can reset the state after a successful submission
-      this.reset();
-    })
-    .catch((error) => {
-      // Handle any errors that occurred during the POST request
-      console.error('Error sending POST request:', error);
-      // Optionally, you can display an error message to the user
-    });
 
-  }
+    fetch('http://localhost:9000/api/result', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Server response:', data);
+        this.reset(); // Reset the state after a successful submission
+      })
+      .catch((error) => {
+        console.error('Error sending POST request:', error);
+      });
+  };
 
   render() {
-    const { className } = this.props
+    const { className } = this.props;
+    const { index, message, steps } = this.state;
+
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">Coordinates (2, 2)</h3>
-          <h3 id="steps">You moved 0 times</h3>
+          <h3 id="coordinates">{message}</h3>
+          <h3 id="steps">You moved {steps} times</h3>
         </div>
         <div id="grid">
-          {
-            [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-              <div key={idx} className={`square${idx === 4 ? ' active' : ''}`}>
-                {idx === 4 ? 'B' : null}
-              </div>
-            ))
-          }
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+            <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
+              {idx === index ? 'B' : null}
+            </div>
+          ))}
         </div>
         <div className="info">
           <h3 id="message"></h3>
         </div>
         <div id="keypad">
-          <button id="left" onClick={this.move}>LEFT</button>
-          <button id="up" onClick={this.move}>UP</button>
-          <button id="right" onClick={this.move}>RIGHT</button>
-          <button id="down" onClick={this.move}>DOWN</button>
-          <button id="reset" onClick={this.reset}>reset</button>
+          <button id="left" onClick={this.move}>
+            LEFT
+          </button>
+          <button id="up" onClick={this.move}>
+            UP
+          </button>
+          <button id="right" onClick={this.move}>
+            RIGHT
+          </button>
+          <button id="down" onClick={this.move}>
+            DOWN
+          </button>
+          <button id="reset" onClick={this.reset}>
+            reset
+          </button>
         </div>
-        <form>
-          <input id="email" type="email" placeholder="type email"></input>
-          <input id="submit" type="submit"></input>
+        <form onSubmit={this.onSubmit}>
+          <input id="email" type="email" placeholder="type email" onChange={this.onChange} />
+          <input id="submit" type="submit" />
         </form>
       </div>
-    )
+    );
   }
 }
