@@ -14,11 +14,13 @@ const initialState = {
 };
 
 export default class AppClass extends React.Component {
-  // Helper function to calculate the coordinates based on the index
+  
   constructor(props) {
     super(props);
 
     // Initialize the component's state with the initialState
+
+    //shouykdnt set state in intro but idk whhere else to put it
     this.state = initialState;
   }
 
@@ -27,8 +29,12 @@ export default class AppClass extends React.Component {
     // It is not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
     const { index } = this.state;
-    const x = (index % 3) + 1;
-    const y = Math.floor(index / 3) + 1;
+    let x = (index % 3) + 1;
+    let y = Math.floor(index / 3) + 1;
+    
+    console.log('Calculated x:', x);
+    console.log('Calculated y:', y);
+    
     return { x, y };
   };
 
@@ -37,17 +43,23 @@ export default class AppClass extends React.Component {
     // It is not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
     // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
     // returns the fully constructed string.
-    const { x, y } = this.getXY();
+    let { x, y } = this.getXY();
     return `Coordinates (${x}, ${y})`;
   };
 
   // Helper function to reset all states to their initial values
   reset = () => {
-    this.setState(initialState);
+    this.setState({
+      message: initialMessage,
+      email: initialEmail,
+      index: initialIndex,
+      steps: initialSteps,
+    });
   };
 
   // Helper function to calculate the next index based on the movement direction
   getNextIndex = (direction) => {
+    console.log("getNextIndex function triggered with direction:", direction);
     // This helper takes a direction ("left", "up", etc) and calculates what the next index
     // of the "B" would be. If the move is impossible because we are at the edge of the grid,
     // this helper should return the current index unchanged.
@@ -59,14 +71,18 @@ export default class AppClass extends React.Component {
       down: 3,
     };
     const nextIndex = index + (gridMap[direction] || 0);
+    console.log("Calculated nextIndex:", nextIndex);
     return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
   };
 
   // Event handler for the movement buttons
   move = (evt) => {
     const direction = evt.target.textContent.toUpperCase();
+    console.log("Move function triggered with direction:", direction);
     const nextIndex = this.getNextIndex(direction);
-
+    console.log("getNextIndex function triggered with direction:", direction);
+    console.log("Calculated nextIndex:", nextIndex);
+    
     this.setState(
       (prevState) => ({
         index: nextIndex,
@@ -81,6 +97,9 @@ export default class AppClass extends React.Component {
   // Helper function to update the message displaying the coordinates
   updateMessage = () => {
     const message = this.getXYMessage();
+
+    console.log('Updated message:', message);
+
     this.setState({ message });
   };
 
@@ -118,7 +137,7 @@ export default class AppClass extends React.Component {
       })
       .then((data) => {
         console.log('Server response:', data);
-        this.reset(); // Reset the state after a successful submission
+        this.reset(); 
       })
       .catch((error) => {
         console.error('Error sending POST request:', error);
@@ -132,7 +151,7 @@ export default class AppClass extends React.Component {
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">{message}</h3>
+          {/* <h3 id="coordinates">{message}</h3> */}
           <h3 id="steps">You moved {steps} times</h3>
         </div>
         <div id="grid">
@@ -143,7 +162,7 @@ export default class AppClass extends React.Component {
           ))}
         </div>
         <div className="info">
-          <h3 id="message"></h3>
+          <h3 id="message">{message}</h3>
         </div>
         <div id="keypad">
           <button id="left" onClick={this.move}>
