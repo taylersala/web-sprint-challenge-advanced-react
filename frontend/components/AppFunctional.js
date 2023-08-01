@@ -14,6 +14,7 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
+  
 
   function getXY() {
     // It it not necessary to have a state to track the coordinates.
@@ -38,33 +39,63 @@ export default function AppFunctional(props) {
     setEmail(initialEmail);
     setSteps(initialSteps);
     setIndex(initialIndex);
+    updateMessage();
   }
 
-  function getNextIndex(direction) {
-    // This helper takes a direction ("left", "up", etc) and calculates what the next index
-    // of the "B" would be. If the move is impossible because we are at the edge of the grid,
-    // this helper should return the current index unchanged.
-    const { index } = this.state;
-    const gridMap = {
-      left: -1,
-      up: -3,
-      right: 1,
-      down: 3,
-    };
-    const nextIndex = index + (gridMap[direction] || 0);
-    console.log("Calculated nextIndex:", nextIndex);
-    return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
+  // function getNextIndex(state, direction) {
+  //   // This helper takes a direction ("left", "up", etc) and calculates what the next index
+  //   // of the "B" would be. If the move is impossible because we are at the edge of the grid,
+  //   // this helper should return the current index unchanged.
+  //   const { index } = state;
+  //   const gridMap = {
+  //     left: -1,
+  //     up: -3,
+  //     right: 1,
+  //     down: 3,
+  //   };
+  // const nextIndex = index + (gridMap[direction] || 0);
+  // console.log("Current index:", index);
+  // console.log("Direction:", direction);
+  // console.log("Calculated nextIndex:", nextIndex);
+  // return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
+  // }
+
+  function getNextIndex(state, direction) {
+  const { index } = state;
+  const gridMap = {
+    left: -1,
+    up: -3,
+    right: 1,
+    down: 3,
+  };
+  const nextIndex = index + (gridMap[direction] || 0);
+
+  if (nextIndex >= 0 && nextIndex <= 8) {
+    return nextIndex;
+  } else {
+    
+    return index;
   }
+}
+  
 
   function move(evt) {
     // This event handler can use the helper above to obtain a new index for the "B",
     // and change any states accordingly.
     const direction = evt.target.textContent.toUpperCase();
-    const nextIndex = getNextIndex(direction);
-    setIndex(nextIndex); 
+  const nextIndex = getNextIndex({ index }, direction);
+
+  // Checking if my next index is within  range
+  if (nextIndex >= 0 && nextIndex <= 8) {
+    setIndex(nextIndex);
     setSteps((prevSteps) => prevSteps + 1);
-    setMessage();
+    setMessage(''); 
+    updateMessage();
+  } else {
+    // for npm test
+    setMessage(`You can't go ${direction}`);
   }
+}
 
   function updateMessage(){
     const message = getXYMessage();
@@ -115,8 +146,8 @@ export default function AppFunctional(props) {
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">Coordinates (2, 2)</h3>
-        <h3 id="steps">You moved 0 times</h3>
+        <h3 id="coordinates">{message}</h3>
+        <h3 id="steps">You moved {steps} times</h3>
       </div>
       <div id="grid">
         {
@@ -128,17 +159,17 @@ export default function AppFunctional(props) {
         }
       </div>
       <div className="info">
-        <h3 id="message"></h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
-        <button id="left">LEFT</button>
-        <button id="up">UP</button>
-        <button id="right">RIGHT</button>
-        <button id="down">DOWN</button>
-        <button id="reset">reset</button>
+        <button id="left" onClick={move}>LEFT</button>
+        <button id="up" onClick={move}>UP</button>
+        <button id="right" onClick={move}>RIGHT</button>
+        <button id="down" onClick={move}>DOWN</button>
+        <button id="reset" onClick={reset}>reset</button>
       </div>
       <form>
-        <input id="email" type="email" placeholder="type email"></input>
+        <input id="email" type="email" placeholder="type email" onChange={onChange} value={email}></input>
         <input id="submit" type="submit"></input>
       </form>
     </div>
