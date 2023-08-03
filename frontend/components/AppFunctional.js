@@ -42,60 +42,46 @@ export default function AppFunctional(props) {
     updateMessage();
   }
 
-  // function getNextIndex(state, direction) {
-  //   // This helper takes a direction ("left", "up", etc) and calculates what the next index
-  //   // of the "B" would be. If the move is impossible because we are at the edge of the grid,
-  //   // this helper should return the current index unchanged.
-  //   const { index } = state;
-  //   const gridMap = {
-  //     left: -1,
-  //     up: -3,
-  //     right: 1,
-  //     down: 3,
-  //   };
-  // const nextIndex = index + (gridMap[direction] || 0);
-  // console.log("Current index:", index);
-  // console.log("Direction:", direction);
-  // console.log("Calculated nextIndex:", nextIndex);
-  // return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
-  // }
+// console.log("Current index:", index);
+// console.log("Direction:", direction);
+// console.log("Calculated nextIndex:", nextIndex);
+  
 
-  function getNextIndex(state, direction) {
-  const { index } = state;
+function getNextIndex(currentIndex, direction) {
   const gridMap = {
     left: -1,
     up: -3,
     right: 1,
     down: 3,
   };
-  const nextIndex = index + (gridMap[direction] || 0);
 
-  if (nextIndex >= 0 && nextIndex <= 8) {
-    return nextIndex;
-  } else {
-    
-    return index;
-  }
+  const nextIndex = currentIndex + (gridMap[direction] || 0);
+
+  console.log("Current index:", index);
+  console.log("Direction:", direction);
+  console.log("Calculated nextIndex:", nextIndex);
+  return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : currentIndex;
 }
+
+  
   
 
   function move(evt) {
-    // This event handler can use the helper above to obtain a new index for the "B",
-    // and change any states accordingly.
     const direction = evt.target.textContent.toUpperCase();
-  const nextIndex = getNextIndex({ index }, direction);
-
-  // Checking if my next index is within  range
-  if (nextIndex >= 0 && nextIndex <= 8) {
-    setIndex(nextIndex);
-    setSteps((prevSteps) => prevSteps + 1);
-    setMessage(''); 
+    const nextIndex = getNextIndex(index, direction); // Pass index directly, not as an object
+  
+    // Checking if my next index is within the range
+    if (nextIndex !== index) {
+      setIndex(nextIndex);
+      setSteps((prevSteps) => prevSteps + 1);
+      setMessage('');
+    } else {
+      setMessage(`You can't go ${direction}`);
+    }
+  
     updateMessage();
-  } else {
-    // for npm test
-    setMessage(`You can't go ${direction}`);
-  }
 }
+
 
   function updateMessage(){
     const message = getXYMessage();
@@ -112,14 +98,14 @@ export default function AppFunctional(props) {
     evt.preventDefault();
 
     const { x, y } = getXY();
-
+  
     const payload = {
       x,
       y,
       steps,
       email,
     };
-
+  
     fetch('http://localhost:9000/api/result', {
       method: 'POST',
       headers: {
@@ -127,20 +113,22 @@ export default function AppFunctional(props) {
       },
       body: JSON.stringify(payload),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
-        console.log('Server response:', data);
-        reset(); // Reset the state after a successful submission
+        console.log('res:', data);
+        updateMessage();
       })
       .catch((error) => {
-        console.error('Error sending POST request:', error);
+        console.error('Error w/ request:', error);
       });
+  }
   
+function gridMap() {
+    return [0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+      <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
+        {idx === index ? 'B' : null}
+      </div>
+    ));
   }
 
   return (
@@ -149,15 +137,7 @@ export default function AppFunctional(props) {
         <h3 id="coordinates">{message}</h3>
         <h3 id="steps">You moved {steps} times</h3>
       </div>
-      <div id="grid">
-        {
-          [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-            <div key={idx} className={`square${idx === 4 ? ' active' : ''}`}>
-              {idx === 4 ? 'B' : null}
-            </div>
-          ))
-        }
-      </div>
+      <div id="grid">{ gridMap() }</div>
       <div className="info">
         <h3 id="message">{message}</h3>
       </div>
