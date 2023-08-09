@@ -65,11 +65,13 @@ function getNextIndex(direction) {
   }
 }
 
+let messageToDisplay = '';
+
   function move(evt) {
   const direction = evt.target.id;
   const nextIndex = getNextIndex(direction);
 
-  // let messageToDisplay = '';
+  
   // Checking if my next index is within the range
   if (nextIndex !== index) {
     setIndex(nextIndex);
@@ -78,7 +80,7 @@ function getNextIndex(direction) {
     updateMessage();
   } else {
     setMessage(`You can't go ${direction}`);
-    // messageToDisplay = message;
+    messageToDisplay = message;
   }
 }
 
@@ -141,7 +143,7 @@ function gridMap() {
       </div>
       <div id="grid">{ gridMap() }</div>
       <div className="info">
-      <h3 id="message">{message}</h3>
+      <h3 id="message">{messageToDisplay}</h3>
       </div>
       <div id="keypad"> 
         <button id="left" onClick={move}>LEFT</button>
