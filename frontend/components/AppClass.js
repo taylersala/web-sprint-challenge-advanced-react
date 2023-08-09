@@ -64,15 +64,16 @@ export default class AppClass extends React.Component {
     // of the "B" would be. If the move is impossible because we are at the edge of the grid,
     // this helper should return the current index unchanged.
     const { index } = this.state;
-    const gridMap = {
-      left: -1,
-      up: -3,
-      right: 1,
-      down: 3,
-    };
-    const nextIndex = index + (gridMap[direction] || 0);
-    console.log("Calculated nextIndex:", nextIndex);
-    return nextIndex >= 0 && nextIndex <= 8 ? nextIndex : index;
+    switch (direction) {
+      case 'up':
+        return (index < 3) ? index : index - 3
+      case 'down':
+        return (index > 5) ? index : index + 3
+      case 'left':
+        return (index % 3 === 0) ? index : index - 1
+      case 'right':
+        return ((index - 2) % 3 === 0) ? index : index + 1
+    }
   };
 
   // Event handler for the movement buttons

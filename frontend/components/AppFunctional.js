@@ -14,6 +14,8 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
+
+  
   
 
   function getXY() {
@@ -23,8 +25,8 @@ export default function AppFunctional(props) {
     let x = (index % 3) + 1
     let y
     if (index < 3) y = 1
-    else if (index < 6) y = 2
-    else if (index < 9) y = 3
+    else if (index >= 3 && index < 6) y = 2
+    else if (index >= 6 && index < 9) y = 3
     return [ x, y ]
   }
 
@@ -64,22 +66,23 @@ function getNextIndex(direction) {
 }
 
   function move(evt) {
-    const direction = evt.target.id;
-    const nextIndex = getNextIndex(direction);
-  
-    // Checking if my next index is within the range
-    if (nextIndex !== index) {
-      setIndex(nextIndex);
-      setSteps(steps + 1);
-      setMessage('');
-      updateMessage();
-    } else {
-      setMessage(`You can't go ${direction}`);
-    }
-  
-    // updateMessage();
+  const direction = evt.target.id;
+  const nextIndex = getNextIndex(direction);
+
+  // let messageToDisplay = '';
+  // Checking if my next index is within the range
+  if (nextIndex !== index) {
+    setIndex(nextIndex);
+    setSteps(steps + 1);
+    setMessage(initialMessage);
+    updateMessage();
+  } else {
+    setMessage(`You can't go ${direction}`);
+    // messageToDisplay = message;
+  }
 }
 
+ 
 
   function updateMessage(){
     const message = getXYMessage();
@@ -129,17 +132,18 @@ function gridMap() {
     ));
   }
 
+
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">{message}</h3>
         <h3 id="steps">You moved {steps} times</h3>
+        <h3 id="coordinates">{ getXYMessage() }</h3>
       </div>
       <div id="grid">{ gridMap() }</div>
       <div className="info">
-        <h3 id="message">{message}</h3>
+      <h3 id="message">{message}</h3>
       </div>
-      <div id="keypad">
+      <div id="keypad"> 
         <button id="left" onClick={move}>LEFT</button>
         <button id="up" onClick={move}>UP</button>
         <button id="right" onClick={move}>RIGHT</button>
