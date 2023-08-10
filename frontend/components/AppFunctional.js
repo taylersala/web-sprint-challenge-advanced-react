@@ -5,6 +5,7 @@ const initialMessage = ''
 const initialEmail = ''
 const initialSteps = 0
 const initialIndex = 4 // the index the "B" is at
+let messageToDisplay = '';
 
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -65,8 +66,6 @@ function getNextIndex(direction) {
   }
 }
 
-let messageToDisplay = '';
-
   function move(evt) {
   const direction = evt.target.id;
   const nextIndex = getNextIndex(direction);
@@ -79,8 +78,8 @@ let messageToDisplay = '';
     setMessage(initialMessage);
     updateMessage();
   } else {
-    setMessage(`You can't go ${direction}`);
-    messageToDisplay = message;
+    // setMessage(`You can't go ${direction}`);
+    messageToDisplay = setMessage(`You can't go ${direction}`);
   }
 }
 
