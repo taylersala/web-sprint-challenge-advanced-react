@@ -5,7 +5,8 @@ const initialMessage = ''
 const initialEmail = ''
 const initialSteps = 0
 const initialIndex = 4 // the index the "B" is at
-let messageToDisplay = '';
+// let messageToDisplay = '';
+const initialMoveMsg = '';
 
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -15,6 +16,7 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
+  const [moveMsg, setMoveMsg] = useState(initialMoveMsg);
 
   
   
@@ -77,13 +79,24 @@ function getNextIndex(direction) {
     setSteps(steps + 1);
     setMessage(initialMessage);
     updateMessage();
-  } else {
-   // setMessage(`You can't go ${direction}`);
-    messageToDisplay = setMessage(`You can't go ${direction}`);
-    console.log('message to display value: ', messageToDisplay)
+    } else {
+      setMoveMsg(`You can't go ${direction}`);
+      setMessage(initialMessage);
+    }
+  
   }
-}
+  //  else {
+  //  // setMessage(`You can't go ${direction}`);
+  //   messageToDisplay = setMessage(`You can't go ${direction}`);
+  //   console.log('message to display value: ', messageToDisplay)
+  // }
 
+
+// function updateMoveMessage() {
+//   if (nextIndex !== index) {
+//     setMessage(`You can't go ${direction}`);
+//   }
+// }
  
 
   function updateMessage(){
@@ -143,7 +156,7 @@ function gridMap() {
       </div>
       <div id="grid">{ gridMap() }</div>
       <div className="info">
-      <h3 id="message">{messageToDisplay}</h3>
+      {moveMsg && <h3 id="message">{moveMsg}</h3>}
       </div>
       <div id="keypad"> 
         <button id="left" onClick={move}>LEFT</button>
