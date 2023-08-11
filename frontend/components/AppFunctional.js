@@ -78,8 +78,9 @@ function getNextIndex(direction) {
     setMessage(initialMessage);
     updateMessage();
   } else {
-    // setMessage(`You can't go ${direction}`);
+   // setMessage(`You can't go ${direction}`);
     messageToDisplay = setMessage(`You can't go ${direction}`);
+    console.log('message to display value: ', messageToDisplay)
   }
 }
 
