@@ -7,6 +7,7 @@ const initialSteps = 0
 const initialIndex = 4 // the index the "B" is at
 // let messageToDisplay = '';
 const initialMoveMsg = '';
+const emailValid = true;
 
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -17,9 +18,8 @@ export default function AppFunctional(props) {
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
   const [moveMsg, setMoveMsg] = useState(initialMoveMsg);
+  const [isEmailValid, setIsEmailValid] = useState(emailValid);
 
-  
-  
 
   function getXY() {
     // It it not necessary to have a state to track the coordinates.
@@ -79,26 +79,14 @@ function getNextIndex(direction) {
     setSteps(steps + 1);
     setMessage(initialMessage);
     updateMessage();
+    setMoveMsg(initialMoveMsg);
     } else {
       setMoveMsg(`You can't go ${direction}`);
       setMessage(initialMessage);
     }
   
   }
-  //  else {
-  //  // setMessage(`You can't go ${direction}`);
-  //   messageToDisplay = setMessage(`You can't go ${direction}`);
-  //   console.log('message to display value: ', messageToDisplay)
-  // }
-
-
-// function updateMoveMessage() {
-//   if (nextIndex !== index) {
-//     setMessage(`You can't go ${direction}`);
-//   }
-// }
- 
-
+  
   function updateMessage(){
     const message = getXYMessage();
     setMessage(message);
@@ -106,7 +94,10 @@ function getNextIndex(direction) {
 
   function onChange(evt) {
     // You will need this to update the value of the input.
-    setEmail(evt.target.value);
+    // setEmail(evt.target.value);
+    const newEmail = evt.target.value;
+    setEmail(newEmail);
+    setIsEmailValid(validateEmail(newEmail));
   }
 
   function onSubmit(evt) {
