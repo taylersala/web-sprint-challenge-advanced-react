@@ -18,7 +18,7 @@ export default function AppFunctional(props) {
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
   const [moveMsg, setMoveMsg] = useState(initialMoveMsg);
-  const [isEmailValid, setIsEmailValid] = useState(emailValid);
+  // const [isEmailValid, setIsEmailValid] = useState(emailValid);
 
 
   function getXY() {
@@ -48,6 +48,7 @@ export default function AppFunctional(props) {
     setSteps(initialSteps);
     setIndex(initialIndex);
     updateMessage();
+    setMoveMsg(initialMoveMsg);
   }
 
 // console.log("Current index:", index);
@@ -84,6 +85,7 @@ function getNextIndex(direction) {
       setMoveMsg(`You can't go ${direction}`);
       setMessage(initialMessage);
     }
+    
   
   }
   
@@ -103,6 +105,10 @@ function getNextIndex(direction) {
   function onSubmit(evt) {
     // Use a POST request to send a payload to the server.
     evt.preventDefault();
+
+    if (!email) {
+      setMoveMsg("Ouch: email is required");
+    }
 
     const { x, y } = getXY();
   
@@ -139,13 +145,25 @@ function gridMap() {
   }
 
 
+  function getMoveMessage() {
+    if (steps === 1) {
+      return `You moved ${steps} time`;
+    } else {
+      return `You moved ${steps} times`;
+    }
+  }
+
+  function isEmailValid() {
+    
+  }
+
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="steps">You moved {steps} times</h3>
-        <h3 id="coordinates">{ getXYMessage() }</h3>
+        <h3 id="steps"> {getMoveMessage()} </h3>
+        <h3 id="coordinates">{getXYMessage()}</h3>
       </div>
-      <div id="grid">{ gridMap() }</div>
+      <div id="grid">{gridMap()}</div>
       <div className="info">
       {moveMsg && <h3 id="message">{moveMsg}</h3>}
       </div>
