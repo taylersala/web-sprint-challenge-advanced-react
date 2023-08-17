@@ -1,10 +1,10 @@
 import React, {useState} from 'react'
 
 // Suggested initial states
-const initialMessage = ''
-const initialEmail = ''
-const initialSteps = 0
-const initialIndex = 4 // the index the "B" is at
+const initialMessage = '';
+const initialEmail = '';
+const initialSteps = 0;
+const initialIndex = 4;// the index the "B" is at
 // let messageToDisplay = '';
 const initialMoveMsg = '';
 const emailValid = true;
@@ -45,7 +45,7 @@ export default function AppFunctional(props) {
     // Use this helper to reset all states to their initial values.
     setMessage(initialMessage);
     setEmail(initialEmail);
-    setSteps(initialSteps);
+    // setSteps(initialSteps);
     setIndex(initialIndex);
     updateMessage();
     setMoveMsg(initialMoveMsg);
