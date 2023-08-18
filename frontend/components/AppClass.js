@@ -5,7 +5,7 @@ const initialEmail = '';
 const initialSteps = 0;
 const initialIndex = 4;
 const initialMoveMsg = '';
-const emailValid = true;
+// const emailValid = true;
 
 class AppFunctional extends Component {
   constructor(props) {
