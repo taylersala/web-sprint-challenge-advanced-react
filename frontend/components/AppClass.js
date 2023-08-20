@@ -4,10 +4,10 @@ const initialMessage = '';
 const initialEmail = '';
 const initialSteps = 0;
 const initialIndex = 4;
-const initialMoveMsg = '';
-// const emailValid = true;
+//const initialMoveMsg = '';
+const emailValid = true;
 
-class AppFunctional extends Component {
+class AppClass extends Component {
   constructor(props) {
     super(props);
 
@@ -16,19 +16,16 @@ class AppFunctional extends Component {
       email: initialEmail,
       index: initialIndex,
       steps: initialSteps,
-      moveMsg: initialMoveMsg,
+      isEmailValid: emailValid,
     };
   }
 
   getXY() {
-    const { index } = this.state;
-    let x = (index % 3) + 1;
+    let x = (this.state.index % 3) + 1;
     let y;
-
-    if (index < 3) y = 1;
-    else if (index >= 3 && index < 6) y = 2;
-    else if (index >= 6 && index < 9) y = 3;
-
+    if (this.state.index < 3) y = 1;
+    else if (this.state.index >= 3 && this.state.index < 6) y = 2;
+    else if (this.state.index >= 6 && this.state.index < 9) y = 3;
     return [x, y];
   }
 
@@ -41,11 +38,9 @@ class AppFunctional extends Component {
     this.setState({
       message: initialMessage,
       email: initialEmail,
-      steps: initialSteps,
       index: initialIndex,
-      moveMsg: initialMoveMsg,
+      steps: initialSteps,
     });
-    this.updateMessage();
   }
 
   getNextIndex(direction) {
@@ -65,52 +60,56 @@ class AppFunctional extends Component {
     }
   }
 
-  move(evt) {
+  move = (evt) => {
     const direction = evt.target.id;
     const nextIndex = this.getNextIndex(direction);
 
     if (nextIndex !== this.state.index) {
-      this.setState({
+      this.setState((prevState) => ({
         index: nextIndex,
-        steps: this.state.steps + 1,
+        steps: prevState.steps + 1,
         message: initialMessage,
-      });
-      this.updateMessage();
-      this.setState({ moveMsg: initialMoveMsg });
+      }));
     } else {
-      this.setState({
-        moveMsg: `You can't go ${direction}`,
-        message: initialMessage,
-      });
+      this.setState({ message: `You can't go ${direction}` });
     }
-  }
+  };
 
   updateMessage() {
     const message = this.getXYMessage();
     this.setState({ message });
   }
 
-  onChange(evt) {
+  onChange = (evt) => {
     const newEmail = evt.target.value;
     this.setState({ email: newEmail });
+    // this.isEmailValid(this.validateEmail(newEmail));
+  };
+
+  validateEmail(email) {
+    return true; // TODO: actually validate!
   }
 
-  onSubmit(evt) {
+  onSubmit = (evt) => {
     evt.preventDefault();
-    const { email, steps } = this.state;
 
-    if (!email) {
-      this.setState({ moveMsg: "Ouch: email is required" });
+    if (!this.state.email) {
+      this.setState({ message: 'Ouch: email is required' });
       return;
     }
 
-    const { x, y } = this.getXY();
+    this.setState({ email: initialEmail });
+
+    const [x, y] = this.getXY();
+
     const payload = {
       x,
       y,
-      steps,
-      email,
+      steps: this.state.steps,
+      email: this.state.email,
     };
+
+    console.log(payload);
 
     fetch('http://localhost:9000/api/result', {
       method: 'POST',
@@ -122,65 +121,76 @@ class AppFunctional extends Component {
       .then((response) => response.json())
       .then((data) => {
         console.log('res:', data);
-        this.updateMessage();
+        this.setState({ message: data.message });
       })
       .catch((error) => {
         console.error('Error w/ request:', error);
       });
-  }
+  };
 
   gridMap() {
-    const { index } = this.state;
-
     return [0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
       <div
         key={idx}
-        className={`square${idx === index ? ' active' : ''}`}
+        className={`square${idx === this.state.index ? ' active' : ''}`}
       >
-        {idx === index ? 'B' : null}
+        {idx === this.state.index ? 'B' : null}
       </div>
     ));
   }
 
   getMoveMessage() {
     const { steps } = this.state;
-    return `You moved ${steps} ${steps === 1 ? 'time' : 'times'}`;
+    if (steps === 1) {
+      return `You moved ${steps} time`;
+    } else {
+      return `You moved ${steps} times`;
+    }
   }
 
   render() {
-    const { className } = this.props;
-    const { moveMsg, email } = this.state;
-
     return (
-      <div id="wrapper" className={className}>
+      <div id="wrapper" className={this.props.className}>
         <div className="info">
           <h3 id="steps">{this.getMoveMessage()}</h3>
           <h3 id="coordinates">{this.getXYMessage()}</h3>
         </div>
         <div id="grid">{this.gridMap()}</div>
         <div className="info">
-          {moveMsg && <h3 id="message">{moveMsg}</h3>}
+          <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
-          <button id="left" onClick={(evt) => this.move(evt)}>LEFT</button>
-          <button id="up" onClick={(evt) => this.move(evt)}>UP</button>
-          <button id="right" onClick={(evt) => this.move(evt)}>RIGHT</button>
-          <button id="down" onClick={(evt) => this.move(evt)}>DOWN</button>
-          <button id="reset" onClick={() => this.reset()}>reset</button>
+          <button id="left" onClick={this.move}>
+            LEFT
+          </button>
+          <button id="up" onClick={this.move}>
+            UP
+          </button>
+          <button id="right" onClick={this.move}>
+            RIGHT
+          </button>
+          <button id="down" onClick={this.move}>
+            DOWN
+          </button>
+          <button id="reset" onClick={() => this.reset()}>
+            reset
+          </button>
         </div>
-        <form onSubmit={(evt) => this.onSubmit(evt)}>
+        <form onSubmit={this.onSubmit}>
           <input
             id="email"
             type="email"
             placeholder="type email"
-            onChange={(evt) => this.onChange(evt)}
-            value={email}
-          ></input>
-          <input id="submit" type="submit"></input>
+            onChange={this.onChange}
+            value={this.state.email}
+          />
+          <button id="submit" type="submit">
+            Submit NOW
+          </button>
         </form>
       </div>
     );
   }
 }
 
-export default AppFunctional;
+export default AppClass;
