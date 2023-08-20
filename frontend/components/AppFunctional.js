@@ -7,7 +7,7 @@ const initialSteps = 0;
 const initialIndex = 4;// the index the "B" is at
 // let messageToDisplay = '';
 const initialMoveMsg = '';
-// const emailValid = true;
+const emailValid = true;
 
 export default function AppFunctional(props) {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -17,14 +17,12 @@ export default function AppFunctional(props) {
   const [email, setEmail] = useState(initialEmail);
   const [index, setIndex] = useState(initialIndex);
   const [steps, setSteps] = useState(initialSteps);
-  const [moveMsg, setMoveMsg] = useState(initialMoveMsg);
-  // const [isEmailValid, setIsEmailValid] = useState(emailValid);
+  const [isEmailValid, setIsEmailValid] = useState(emailValid);
 
 
   function getXY() {
     // It it not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
-
     let x = (index % 3) + 1
     let y
     if (index < 3) y = 1
@@ -47,14 +45,14 @@ export default function AppFunctional(props) {
     setEmail(initialEmail);
     setSteps(initialSteps);
     setIndex(initialIndex);
-    updateMessage();
-    setMoveMsg(initialMoveMsg);
   }
+
+
 
 // console.log("Current index:", index);
 // console.log("Direction:", direction);
 // console.log("Calculated nextIndex:", nextIndex);
-  
+
 
 function getNextIndex(direction) {
   switch (direction) {
@@ -73,26 +71,19 @@ function getNextIndex(direction) {
   const direction = evt.target.id;
   const nextIndex = getNextIndex(direction);
 
-  
+
   // Checking if my next index is within the range
   if (nextIndex !== index) {
     setIndex(nextIndex);
     setSteps(steps + 1);
     setMessage(initialMessage);
-    updateMessage();
-    setMoveMsg(initialMoveMsg);
     } else {
-      setMoveMsg(`You can't go ${direction}`);
-      setMessage(initialMessage);
+      setMessage(`You can't go ${direction}`);
     }
-    
-  
+
+
   }
-//TODO ACT VALIDATE 
-  // function validateEmail(email){
-  //   return true;
-  // }
-  
+
   function updateMessage(){
     const message = getXYMessage();
     setMessage(message);
@@ -103,7 +94,11 @@ function getNextIndex(direction) {
     // setEmail(evt.target.value);
     const newEmail = evt.target.value;
     setEmail(newEmail);
-    // setIsEmailValid(validateEmail(newEmail));
+    setIsEmailValid(validateEmail(newEmail));
+  }
+
+  function validateEmail(email) {
+    return true; // TODO: actually validate!
   }
 
   function onSubmit(evt) {
@@ -111,22 +106,22 @@ function getNextIndex(direction) {
     evt.preventDefault();
 
     if (!email) {
-      setMoveMsg("Ouch: email is required");
+      setMessage("Ouch: email is required");
     }
 
-    // if (email === "foo@bar.baz") {
+    setEmail(initialEmail);
 
-    // }
+    const [ x, y ] = getXY();
 
-    const [x, y] = getXY();
-  
     const payload = {
       x,
       y,
       steps,
       email,
     };
-  
+
+    console.log(payload)
+
     fetch('http://localhost:9000/api/result', {
       method: 'POST',
       headers: {
@@ -137,13 +132,13 @@ function getNextIndex(direction) {
       .then((response) => response.json())
       .then((data) => {
         console.log('res:', data);
-        setMoveMsg(data.message);
+        setMessage(data.message);
       })
       .catch((error) => {
         console.error('Error w/ request:', error);
-      }); 
+      });
   }
-  
+
 function gridMap() {
     return [0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
       <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
@@ -161,7 +156,6 @@ function gridMap() {
     }
   }
 
-
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
@@ -170,9 +164,9 @@ function gridMap() {
       </div>
       <div id="grid">{gridMap()}</div>
       <div className="info">
-      {<h3 id="message">{moveMsg}</h3>}
+      <h3 id="message">{message}</h3>
       </div>
-      <div id="keypad"> 
+      <div id="keypad">
         <button id="left" onClick={move}>LEFT</button>
         <button id="up" onClick={move}>UP</button>
         <button id="right" onClick={move}>RIGHT</button>
@@ -180,8 +174,8 @@ function gridMap() {
         <button id="reset" onClick={reset}>reset</button>
       </div>
       <form onSubmit={onSubmit}>
-        <input id="email" type="email" placeholder="type email" onChange={onChange} value={email}></input>
-        <input id="submit" type="submit" />
+        <input id="email" type="email" placeholder="type email" onChange={onChange} value={email} />
+        <button id="submit" type="submit">Submit NOW</button>
       </form>
     </div>
   )
